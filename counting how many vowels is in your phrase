@@ -1,0 +1,6 @@
+vogais = ["A", "a", "E", "e", "I", "i", "O", "o", "U", "u"]
+frase = input("Agora, digite uma palavra e eu direi quantas vogais existem nela!")
+for vogal in frase:
+    if vogal in vogais:
+        quantia += 1
+print("Essa frase contém", quantia, "vogais!")

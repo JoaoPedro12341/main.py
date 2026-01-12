@@ -1,0 +1,3 @@
+frase = str(input("Olá! Digite uma palavra abaixo:"))
+if len(frase) > 10:
+    print(frase[:10] + "...")

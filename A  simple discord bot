@@ -1,0 +1,165 @@
+import discord
+from discord.ext import commands
+import random
+
+intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True
+
+bot = commands.Bot(command_prefix='$', intents=intents)
+
+
+
+#===========================
+# SISTEMA DE RPG!!
+#===========================
+class Player:
+    def __init__(self, nome):
+        self.nome = nome
+        self.hp = 100
+        self.ataque = 15
+        self.defesa = 5
+
+jogadores = {}
+
+@bot.command()
+async def entrar(ctx):
+    if ctx.author.id in jogadores:
+        await ctx.send("Você já está registrado")
+        return
+
+    jogadores[ctx.author.id] = Player(ctx.author.name)
+    await ctx.send("🧙 Personagem criado!")
+
+def batalha(player):
+    inimigo_hp = 50
+    log = []
+
+    while player.hp > 0 and inimigo_hp > 0:
+        dano = random.randint(5, player.ataque)
+        inimigo_hp -= dano
+        log.append("⚔️ Você causou " + str(dano) + " de dano")
+
+        if inimigo_hp <= 0:
+            log.append("🏆 Você derrotou o inimigo!")
+            break
+
+        dano_inimigo = random.randint(3, 10)
+        player.hp -= dano_inimigo
+        log.append("💥 O inimigo causou " + str(dano_inimigo) + " de dano")
+
+        if player.hp <= 0:
+            log.append("☠️ Você foi derrotado!")
+
+    return log
+
+@bot.command()
+async def lutar(ctx):
+    if ctx.author.id not in jogadores:
+        await ctx.send("Crie um personagem com $entrar")
+        return
+
+    player = jogadores[ctx.author.id]
+    resultado = batalha(player)
+
+    for linha in resultado:
+        await ctx.send(linha)
+
+@bot.command()
+async def status(ctx):
+    if ctx.author.id not in jogadores:
+        await ctx.send("Você não tem personagem.")
+        return
+
+    p = jogadores[ctx.author.id]
+    await ctx.send(
+        "🧙 " + p.nome +
+        " | HP: " + str(p.hp) +
+        " | ATK: " + str(p.ataque) +
+        " | DEF: " + str(p.defesa)
+    )
+
+# ======================
+# SISTEMA POKÉMON
+# ======================
+
+class Pokemon:
+    def __init__(self, nome, tipo, hp, ataque):
+        self.nome = nome
+        self.tipo = tipo
+        self.hp = hp
+        self.ataque = ataque
+
+
+pokemons_dos_usuarios = {}
+
+pokemon_base = Pokemon("Pikachu", "Elétrico", 100, 20)
+
+@bot.command()
+async def capturar(ctx):
+    user_id = ctx.author.id
+
+    if user_id in pokemons_dos_usuarios:
+        await ctx.send("Você já tem um Pokémon!")
+        return
+
+    chance = random.randint(1, 100)
+
+    if chance > 40:
+        pokemons_dos_usuarios[user_id] = pokemon_base
+        await ctx.send("⚡ Você capturou um **Pikachu**!")
+    else:
+        await ctx.send("😢 O Pokémon escapou!")
+
+@bot.command()
+async def meu_pokemon(ctx):
+    user_id = ctx.author.id
+
+    if user_id not in pokemons_dos_usuarios:
+        await ctx.send("Você ainda não tem nenhum Pokémon. Use `$capturar`!")
+        return
+
+    p = pokemons_dos_usuarios[user_id]
+    await ctx.send(
+        f"🟡 **Seu Pokémon**\n"
+        f"Nome: {p.nome}\n"
+        f"Tipo: {p.tipo}\n"
+        f"HP: {p.hp}\n"
+        f"Ataque: {p.ataque}"
+    )
+
+# =================================
+# COMANDOS QUE EU TINHA FEITO ANTES
+# =================================
+
+@bot.event
+async def on_ready():
+    print(f'Estamos logados como {bot.user}')
+
+#HELLO
+@bot.command()
+async def hello(ctx):
+    await ctx.send(f'Olá! eu sou um bot {bot.user}!')
+
+@bot.command()
+async def heh(ctx, count_heh: int = 5):
+    await ctx.send("he" * count_heh)
+
+@bot.command()
+async def joined(ctx, member: discord.Member):
+    await ctx.send(
+        f'{member.name} joined {discord.utils.format_dt(member.joined_at)}'
+    )
+
+@bot.command()
+async def roll(ctx, dice: str):
+    try:
+        rolls, limit = map(int, dice.split('d'))
+    except Exception:
+        await ctx.send('Format has to be in NdN!')
+        return
+
+    result = ', '.join(str(random.randint(1, limit)) for _ in range(rolls))
+    await ctx.send(result)
+
+bot.run("Token_aqui")

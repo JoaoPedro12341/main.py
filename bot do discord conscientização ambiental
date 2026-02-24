@@ -1,0 +1,93 @@
+import discord
+import random
+from discord.ext import commands
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+reciclar = ['Fazer uma garrafa pet virar um vaso de flores!', 'Fazer um rolo de papel higiênico virar um porta-lápis!', 'Transformar latas de alumínio em porta-velas decorativos!']
+tips = ['Apague a luz ao sair do quarto!', 'Feche a torneira enquanto não estiver utilizando!', 'Tente reciclar sempre que possível!', 'Sempre separe os lixos em reciclável e lixo normal!']
+
+bot = commands.Bot(command_prefix='!', intents=intents)
+@bot.event
+async def on_ready():
+    print(f'Bot conectado como {bot.user}')
+
+
+
+# ===============================
+# MOSTRAR OS COMANDOS EXISTENTES!
+# ===============================
+@bot.command()
+async def ajuda(ctx):
+    await ctx.send("Seja bem vindo! Aqui está a lista de todos os códigos que eu respondo:")
+    await ctx.send('!quiz: o bot te faz uma pergunta!\n !dica: o bot te dá uma dica sobre preservação ambiental!\n !impacto: o bot te dá um breve resumo sobre o que a poluição causa!\n !poluicao: o bot te dá um resumo sobre o que é a poluição!\n !recycle: o bot te dá ideias de reciclagem com materiais acessíveis em casa!')
+# ====================
+# IDEIAS DE RECICLAGEM
+# ====================
+@bot.command()
+async def recycle(ctx):
+    await ctx.send("Você pode reciclar de diversas maneiras! Aqui vai um exemplo:")
+    await ctx.send(random.choice(reciclar))
+
+# =========
+# PERGUNTAS
+# =========
+@bot.command()
+async def poluicao(ctx):
+    await ctx.send("A poluição é a introdução direta ou indireta de substâncias, materiais ou energia no meio ambiente, tornando-o impuro, inseguro ou impróprio, resultando na degradação do meio ambiente")
+
+# ====
+# QUIZ
+# ====
+@bot.command()
+async def quiz(ctx):
+    await ctx.send(
+        "🌱 **QUIZ DO MEIO AMBIENTE** 🌱\n\n"
+        "Qual desses materiais demora MAIS tempo para se decompor?\n"
+        "1️⃣ Papel\n"
+        "2️⃣ Casca de banana\n"
+        "3️⃣ Garrafa plástica\n\n"
+        "Responda com **1, 2 ou 3**"
+    )
+
+    def check(msg):
+        return msg.author == ctx.author and msg.channel == ctx.channel
+
+    resposta = await bot.wait_for('message', check=check)
+    resposta_usuario = resposta.content.strip()
+
+    await ctx.send(f"📩 Você respondeu: {resposta_usuario}")
+
+    if resposta_usuario == "3":
+        await ctx.send("✅ Correto! A garrafa plástica leva centenas de anos para se decompor.")
+    elif resposta_usuario == "1":
+        await ctx.send("❌ Errado! O papel se decompõe bem mais rápido.")
+    elif resposta_usuario == "2":
+        await ctx.send("❌ Errado! A casca de banana se decompõe em poucos meses.")
+    else:
+        await ctx.send("⚠️ Responda apenas com **1, 2 ou 3**.")
+
+# ===========
+# DICA DO DIA
+# ===========
+@bot.command()
+async def dica(ctx):
+    await ctx.send(
+        "Aqui vai a dica do dia!\n"
+        + random.choice(tips)
+    )
+
+# =================
+# IMPACTO AMBIENTAL
+# =================
+@bot.command()
+async def impacto(ctx):
+    await ctx.send('Aqui vai um breve resumo sobre o que pode acontecer se não cuidarmos do planeta!\n\n degradação, como poluição do ar e da água, desmatamento e extinção de espécies;\n ' \
+    'Mudanças climáticas, intensificação do efeito estufa, escassez de água potável, erosão do solo e riscos à saúde humana.')
+
+
+# ===========
+# MEU TOKEN!!
+# ===========
+bot.run("TOKEN_AQUI")
